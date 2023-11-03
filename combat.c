@@ -137,55 +137,35 @@ void rotacionaTanque(Tanque *t){
 	}
 }
 
-void atualizaTanque(Tanque *t, int dist){
+void atualizaTanque(Tanque *t, int dist) {
+	// Calcula a colisão com o obstáculo
+	bool colideComObstaculo =
+		(t->centro.x >= OBS1_SUP_X && t->centro.x <= OBS1_INF_X &&
+		(t->centro.y + RAIO_CAMPO >= OBS1_SUP_Y && t->centro.y - RAIO_CAMPO <= OBS1_INF_Y) ||
+		(t->centro.x >= OBS2_SUP_X && t->centro.x <= OBS2_INF_X &&
+		(t->centro.y + RAIO_CAMPO >= OBS2_SUP_Y && t->centro.y - RAIO_CAMPO <= OBS2_INF_Y)));
 
-	int col=0, colr1=0, colr2=0, colr3=0, colr4=0, colx=0,coly=0;
-	rotacionaTanque(t);
+	// Calcula a colisão com o outro tanque
+	bool colideComOutroTanque = (dist == 1 && t->centro.y + RAIO_CAMPO + t->vel * t->y_comp <= SCREEN_H &&
+								t->centro.y - RAIO_CAMPO + t->vel * t->y_comp > 0 ||
+								dist == 2 && t->centro.y - RAIO_CAMPO - t->vel * t->y_comp >= 0 &&
+								t->centro.y + RAIO_CAMPO - t->vel * t->y_comp <= SCREEN_H ||
+								dist == 3 && t->centro.x - RAIO_CAMPO - t->vel * t->x_comp >= 0 &&
+								t->centro.x + RAIO_CAMPO - t->vel * t->x_comp <= SCREEN_W ||
+								dist == 4 && t->centro.x + RAIO_CAMPO + t->vel * t->x_comp <= SCREEN_W &&
+								t->centro.x - RAIO_CAMPO + t->vel * t->x_comp >= 0);
 
-	//CALCULA A COLISAO COM O OBSTACULO
-	//reta 1 e 3 do desenho 
-	if(t->centro.x >= OBS1_SUP_X && t->centro.x <= OBS1_INF_X && (t->centro.y + RAIO_CAMPO >= OBS1_SUP_Y && t->centro.y - RAIO_CAMPO <= OBS1_INF_Y) ||
-	 (t->centro.x >= OBS2_SUP_X && t->centro.x <= OBS2_INF_X && (t->centro.y + RAIO_CAMPO >= OBS2_SUP_Y && t->centro.y - RAIO_CAMPO <= OBS2_INF_Y)))
-			coly = 1;
-		
-	//reta 2 e 4 do desenho
-	if(t->centro.y >= OBS1_SUP_Y && t->centro.y <= OBS1_INF_Y && (t->centro.x + RAIO_CAMPO >= OBS1_SUP_X && t->centro.x - RAIO_CAMPO <= OBS1_INF_X) || 
-		t->centro.y >= OBS2_SUP_Y && t->centro.y <= OBS2_INF_Y && (t->centro.x + RAIO_CAMPO >= OBS2_SUP_X && t->centro.x - RAIO_CAMPO <= OBS2_INF_X))
-			colx = 1;
-	
-
-	//VE A COLISAO COM O OUTRO TANQUE
-	if(dist == 1){
-		t->centro.y += t->vel;      
-		t->centro.x += t->vel;      
-	}
-
-	if(dist == 2){
-		t->centro.y -= t->vel;       
-		t->centro.x += t->vel;       
-	}
-
-	if(dist == 3){
-		t->centro.y += t->vel;         
-		t->centro.x -= t->vel;         
-	}
-
-	if(dist == 4){
-		t->centro.y -= t->vel;         
-		t->centro.x -= t->vel;       
-	} 
-                                 
-	//MOVIMENTA O TANQUE EM SI
-	if(t->centro.y + RAIO_CAMPO + t->vel * t->y_comp <= SCREEN_H && t->centro.y - RAIO_CAMPO + t->vel * t->y_comp > 0 && coly==0)
+	// Move o tanque
+	if (!colideComObstaculo && !colideComOutroTanque) {
 		t->centro.y += t->vel * t->y_comp;
-	
-	if(t->centro.x - RAIO_CAMPO + t->vel * t->x_comp >= 0 && t->centro.x + RAIO_CAMPO + t->vel * t->x_comp <= SCREEN_W && colx==0)
 		t->centro.x += t->vel * t->x_comp;
-		
+	}
+
+	// Move o tiro
 	t->tiro.c.x += t->tiro.veloc * t->x_comp;
 	t->tiro.c.y += t->tiro.veloc * t->y_comp;
-	
 }
+
 
 int calculaDistTanques(Tanque *t1,Tanque *t2){
 	float dist, dist1;
@@ -578,7 +558,7 @@ int main(int argc, char **argv){
 				case ALLEGRO_KEY_M:
 				tanque_2.tiro.veloc -= VEL_TIRO;
 				break;
-				
+
 			}
 			}
 
