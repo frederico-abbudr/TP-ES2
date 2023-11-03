@@ -23,10 +23,10 @@ const float PASSO_ANGULO = M_PI/90; // velocidade que o tanque rotaciona
 const float RAIO_TIRO = 5;
 const float VEL_TIRO = 7;
 
- float OBS1_SUP_X = 350;
- float OBS1_SUP_Y = 150;
- float OBS1_INF_X = 400;
- float OBS1_INF_Y = 450;
+float OBS1_SUP_X = 350;
+float OBS1_SUP_Y = 150;
+float OBS1_INF_X = 400;
+float OBS1_INF_Y = 450;
 
 const float OBS2_SUP_X = 550;
 const float OBS2_SUP_Y = 150;
@@ -346,7 +346,7 @@ int main(int argc, char **argv){
 	}
    
 	char pont[20],pont1[20],winblue[20], winred[20];
-	int pontos1 = 0, pontos2=0;
+	int pontos_azul = 0, pontos_vermelho=0;
 	//registra na fila os eventos de tela (ex: clicar no X na janela)
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 	//registra na fila os eventos de tempo: quando o tempo altera de t para t+1
@@ -365,18 +365,23 @@ int main(int argc, char **argv){
 	srand(time(NULL));
 
 	//cria o tanque
-	int a,b,w=1,winr=0, winb=0;
-	float aux = 4, auxb = 4;
-	float aux2 = 1.3, auxb2 = 1.25;
+	// int a,b,w=1;
+	int vitoria_vermelho = 0;
+	int vitoria_azul = 0;
+	int vitorias_azul = 0;
+	int vitorias_vermelho = 0;
+	int peso_vitoria = 0;
+	float centro_x_tanque1 = 4, centro_y_tanque1 = 4;
+	float centro_x_tanque2 = 1.3, centro_y_tanque2 = 1.25;
 	Tanque tanque_1, tanque_2;
 	Tiro t;
 	FILE *azul;
-	FILE *verm;
+	FILE *vermelho;
 
 	azul = fopen("blue.txt", "a");
-	verm = fopen("red.txt", "a");
-	initTanque(&tanque_1, aux, auxb,0,0,255);
-	initTanque(&tanque_2, aux2, auxb2, 0,212,119);
+	vermelho = fopen("red.txt", "a");
+	initTanque(&tanque_1, centro_x_tanque1, centro_y_tanque1 ,0,0,255);
+	initTanque(&tanque_2, centro_x_tanque2, centro_y_tanque2, 0,212,119);
 
 	//inicia o temporizador
 	al_start_timer(timer);
@@ -393,7 +398,7 @@ int main(int argc, char **argv){
 			desenhaCenario();
 
 			//PONTUAÇÃO,CONFERE SE O JOGO ACABOU E FAZ A TELA DE ENDGAME
-			if(pontos1 >= 5){ //SE QUISER PASSAR DESSA PARTE DO CODIGO, PULA PRA LINHA *456*
+			if(pontos_azul >= 5){ //SE QUISER PASSAR DESSA PARTE DO CODIGO, PULA PRA LINHA *456*
 
 				al_clear_to_color(al_map_rgb(0,0,0));
 			
@@ -403,88 +408,83 @@ int main(int argc, char **argv){
  				al_draw_text(size_32, al_map_rgb(0,0,255), OBS1_SUP_X, OBS1_SUP_Y + 16, 0, "FIM DE JOGO");	
  				al_draw_text(size_32, al_map_rgb(0,0,255), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "AZUL GANHOU!");
 
- 				winb = 1;
+ 				vitoria_azul = 1;
 
- 			//EXIBE O HISTORICO DE PARTIDAS	
+ 				//EXIBE O HISTORICO DE PARTIDAS	
  				fprintf(azul,"%d ",w);
  				fclose(azul);		
  			
 
-			azul = fopen("blue.txt", "r");
-			verm = fopen("red.txt", "r");
+				azul = fopen("blue.txt", "r");
+				vermelho = fopen("red.txt", "r");
 
-			int vitb=0, vitr=0,y=0;
+				while(!feof(azul)){
+					fscanf(azul, "%d", &peso_vitoria);
+					vitorias_azul += peso_vitoria;
+				}
 
-			while(!feof(azul)){
-				fscanf(azul, "%d", &y);
-				vitb += y;
-			}
+				while(!feof(vermelho)){
+					fscanf(vermelho, "%d", &peso_vitoria);
+					vitorias_vermelho += peso_vitoria;
+				}
 
-			while(!feof(verm)){
-				fscanf(verm, "%d", &y);
-				vitr += y;
-			}
+				fclose(azul);
+				fclose(vermelho);
 
-			fclose(azul);
-			fclose(verm);
+				if(vitorias_azul != 0 || vitorias_vermelho != 0){
+					vitorias_azul--;
+					vitorias_vermelho--;
+				}
 
-			if(vitb != 0 || vitr != 0){
-			vitr--;
-			vitb--;
-			}
+				sprintf(winblue, "%d ", vitorias_azul);
+				sprintf(winred, "%d ", vitorias_vermelho);
 
-			sprintf(winblue, "%d ", vitb);
-			sprintf(winred, "%d ", vitr);
-
-			al_draw_text(size_22, al_map_rgb(255, 255, 0), OBS1_SUP_X + 10,  (OBS2_INF_Y + OBS2_SUP_Y)/2 + 30, 0, "HISTÓRICO");
-			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, "vitorias do azul: ");
-			al_draw_text(size_22, al_map_rgb(1, 212, 119), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 70, 0, "vitorias do verde: ");
-			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS2_INF_X - 40, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, winblue);
-			al_draw_text(size_22, al_map_rgb(0, 212, 119), OBS2_INF_X - 40, (OBS2_INF_Y + OBS2_SUP_Y)/2 + 70, 0, winred);
+				al_draw_text(size_22, al_map_rgb(255, 255, 0), OBS1_SUP_X + 10,  (OBS2_INF_Y + OBS2_SUP_Y)/2 + 30, 0, "HISTÓRICO");
+				al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, "vitorias do azul: ");
+				al_draw_text(size_22, al_map_rgb(1, 212, 119), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 70, 0, "vitorias do verde: ");
+				al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS2_INF_X - 40, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, winblue);
+				al_draw_text(size_22, al_map_rgb(0, 212, 119), OBS2_INF_X - 40, (OBS2_INF_Y + OBS2_SUP_Y)/2 + 70, 0, winred);
 		 }
 
 
- 		if(pontos2 >= 5){
+ 		if(pontos_vermelho >= 5){
 			al_clear_to_color(al_map_rgb(0,0,0));
 				
 			tanque_1.centro.x = -1000;
 			tanque_2.centro.x = -2000;
 				
  			al_draw_text(size_32, al_map_rgb(1, 212, 119), OBS1_SUP_X, OBS1_SUP_Y + 16, 0, "FIM DE JOGO");	
- 				al_draw_text(size_32, al_map_rgb(1, 212, 119), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "VERDE GANHOU!");
+ 			al_draw_text(size_32, al_map_rgb(1, 212, 119), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "VERDE GANHOU!");
  			
- 			winr = 1;
+ 			vitorias_vermelho = 1;
 
- 			fprintf(verm,"%d ",w);
-			fclose(verm);
+ 			fprintf(vermelho,"%d ",w);
+			fclose(vermelho);
 			
 
 			azul = fopen("blue.txt", "r");
-			verm = fopen("red.txt", "r");
+			vermelho = fopen("red.txt", "r");
 
-			int vitb=0, vitr=0,y=0;
-
-			//FAZ A LEITURA DO HISTÓRICO
 			while(!feof(azul)){
-				fscanf(azul, "%d", &y);
-				vitb += y;
+				fscanf(azul, "%d", &peso_vitoria);
+				vitorias_azul += peso_vitoria;
 			}
 
-			while(!feof(verm)){
-				fscanf(verm, "%d", &y);
-				vitr += y;
+			while(!feof(vermelho)){
+				fscanf(vermelho, "%d", &peso_vitoria);
+				vitorias_vermelho += peso_vitoria;
 			}
 
 			fclose(azul);
-			fclose(verm);
+			fclose(vermelho);
 
-			if(vitb != 0 || vitr != 0){
-			vitr--;
-			vitb--;
+			if(vitorias_azul != 0 || vitorias_vermelho != 0){
+				vitorias_azul--;
+				vitorias_vermelho--;
 			}
 
-			sprintf(winblue, "%d ", vitb);
-			sprintf(winred, "%d ", vitr);
+			sprintf(winblue, "%d ", vitorias_azul);
+			sprintf(winred, "%d ", vitorias_vermelho);
 
 			al_draw_text(size_22, al_map_rgb(255, 255, 0), OBS1_SUP_X + 10,  (OBS2_INF_Y + OBS2_SUP_Y)/2 + 30, 0, "HISTÓRICO");
 			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, "vitorias do azul: ");
@@ -495,27 +495,24 @@ int main(int argc, char **argv){
  		}//FIM DO WHILE DOS PONTOS (SE QUISER CHEGAR NO INICIO DESSA PARTE, PULA PRA LINHA *343*)
 
 
- 			if(pontos1 <= 5 && pontos2 <= 5){
+ 			if(pontos_azul <= 5 && pontos_vermelho <= 5){
 			    
-			    sprintf(pont, "%d ", pontos1);
-			    sprintf(pont1, "%d ", pontos2);
+			    sprintf(pont, "%d ", pontos_azul);
+			    sprintf(pont1, "%d ", pontos_vermelho);
 			   	
 
 			    al_draw_text(size_32, al_map_rgb(0, 0, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 - 16, 0, pont);
 			    al_draw_text(size_32, al_map_rgb(50, 168, 19), OBS2_INF_X - 30, (OBS2_INF_Y + OBS2_SUP_Y)/2 - 16, 0, pont1);
 			    
-				int x = calculaDistTanques(&tanque_1, &tanque_2);
-				int u = calculaDistTanques(&tanque_2, &tanque_1);
+				int dist_t1_t2 = calculaDistTanques(&tanque_1, &tanque_2);
+				int dist_t2_t1 = calculaDistTanques(&tanque_2, &tanque_1);
 				
-				int aux,seqa, seqb = 0;
+				pontos_azul += calculaTiro(&tanque_2, &tanque_1);
+				pontos_vermelho += calculaTiro(&tanque_1, &tanque_2);  
 
 				
-				pontos1 +=calculaTiro(&tanque_2, &tanque_1);
-				pontos2 +=calculaTiro(&tanque_1, &tanque_2);  
-
-				
-				atualizaTanque(&tanque_1,u); 
-				atualizaTanque(&tanque_2,x); 
+				atualizaTanque(&tanque_1, dist_t1_t2); 
+				atualizaTanque(&tanque_2, dist_t2_t1); 
 				
 				desenhaTanque(tanque_1);
 				desenhaTanque(tanque_2);
@@ -537,7 +534,7 @@ int main(int argc, char **argv){
 			//imprime qual tecla foi
 			//printf("\ncodigo tecla: %d", ev.keyboard.keycode);
 
-			if(pontos1 < 5 && pontos2 < 5){
+			if(pontos_azul < 5 && pontos_vermelho < 5){
 			switch(ev.keyboard.keycode){
 
 				//Movimenta o tanque
@@ -581,24 +578,18 @@ int main(int argc, char **argv){
 				case ALLEGRO_KEY_M:
 				tanque_2.tiro.veloc -= VEL_TIRO;
 				break;
-
-				/*case ALLEGRO_KEY_O:
-				OBS1_SUP_Y++;
-				OBS1_SUP_X++;
-				OBS1_INF_Y--;
-				OBS1_INF_X--;
-				break;*/
+				
 			}
 			}
 
 		}
 
 		//se o tipo de evento for um pressionar de uma tecla
-		else if(ev.type == ALLEGRO_EVENT_KEY_UP && pontos1 <= 5 && pontos2 <= 5) {
+		else if(ev.type == ALLEGRO_EVENT_KEY_UP && pontos_azul <= 5 && pontos_vermelho <= 5) {
 			//imprime qual tecla foi
 			printf("\ncodigo tecla: %d", ev.keyboard.keycode);
 
-			if(pontos1 < 5 && pontos2 < 5){
+			if(pontos_azul < 5 && pontos_vermelho < 5){
 			switch(ev.keyboard.keycode){
 
 				//Movimenta o tanque
