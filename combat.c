@@ -378,79 +378,39 @@ int main(int argc, char **argv){
 			desenhaCenario();
 
 			//PONTUAÇÃO,CONFERE SE O JOGO ACABOU E FAZ A TELA DE ENDGAME
-			if(pontos_azul >= 5){ //SE QUISER PASSAR DESSA PARTE DO CODIGO, PULA PRA LINHA *456*
+			//Verifica se o jogo terminou
+			if (pontos_azul >= 5 || pontos_vermelho >= 5) {
+			//Limpa a tela
+			al_clear_to_color(al_map_rgb(0, 0, 0));
 
-				al_clear_to_color(al_map_rgb(0,0,0));
-			
-				tanque_1.centro.x = -1000;
-				tanque_2.centro.x = -2000;
-
- 				al_draw_text(size_32, al_map_rgb(0,0,255), OBS1_SUP_X, OBS1_SUP_Y + 16, 0, "FIM DE JOGO");	
- 				al_draw_text(size_32, al_map_rgb(0,0,255), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "AZUL GANHOU!");
-
- 				vitoria_azul = 1;
-
- 				//EXIBE O HISTORICO DE PARTIDAS	
- 				fprintf(azul,"%d ",w);
- 				fclose(azul);		
- 			
-
-				azul = fopen("blue.txt", "r");
-				vermelho = fopen("red.txt", "r");
-
-				while(!feof(azul)){
-					fscanf(azul, "%d", &peso_vitoria);
-					vitorias_azul += peso_vitoria;
-				}
-
-				while(!feof(vermelho)){
-					fscanf(vermelho, "%d", &peso_vitoria);
-					vitorias_vermelho += peso_vitoria;
-				}
-
-				fclose(azul);
-				fclose(vermelho);
-
-				if(vitorias_azul != 0 || vitorias_vermelho != 0){
-					vitorias_azul--;
-					vitorias_vermelho--;
-				}
-
-				sprintf(winblue, "%d ", vitorias_azul);
-				sprintf(winred, "%d ", vitorias_vermelho);
-
-				al_draw_text(size_22, al_map_rgb(255, 255, 0), OBS1_SUP_X + 10,  (OBS2_INF_Y + OBS2_SUP_Y)/2 + 30, 0, "HISTÓRICO");
-				al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, "vitorias do azul: ");
-				al_draw_text(size_22, al_map_rgb(1, 212, 119), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 70, 0, "vitorias do verde: ");
-				al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS2_INF_X - 40, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, winblue);
-				al_draw_text(size_22, al_map_rgb(0, 212, 119), OBS2_INF_X - 40, (OBS2_INF_Y + OBS2_SUP_Y)/2 + 70, 0, winred);
-		 }
-
-
- 		if(pontos_vermelho >= 5){
-			al_clear_to_color(al_map_rgb(0,0,0));
-				
+			//Reseta a posição dos tanques
 			tanque_1.centro.x = -1000;
 			tanque_2.centro.x = -2000;
-				
- 			al_draw_text(size_32, al_map_rgb(1, 212, 119), OBS1_SUP_X, OBS1_SUP_Y + 16, 0, "FIM DE JOGO");	
- 			al_draw_text(size_32, al_map_rgb(1, 212, 119), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "VERDE GANHOU!");
- 			
- 			vitorias_vermelho = 1;
 
- 			fprintf(vermelho,"%d ",w);
-			fclose(vermelho);
-			
+			//Exibe a mensagem de fim de jogo
+			al_draw_text(size_32, al_map_rgb(255, 255, 255), OBS1_SUP_X, OBS1_SUP_Y + 16, 0, "FIM DE JOGO");
 
+			//Exibe o vencedor
+			if (pontos_azul >= 5) {
+				al_draw_text(size_32, al_map_rgb(0, 0, 255), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "AZUL GANHOU!");
+			} else {
+				al_draw_text(size_32, al_map_rgb(1, 212, 119), OBS1_SUP_X, OBS1_SUP_Y + 48, 0, "VERDE GANHOU!");
+			}
+
+			//Atualiza o histórico de partidas
+			fprintf(azul, "%d ", w);
+			fclose(azul);
+
+			//Exibe o histórico de partidas
 			azul = fopen("blue.txt", "r");
 			vermelho = fopen("red.txt", "r");
 
-			while(!feof(azul)){
+			while (!feof(azul)) {
 				fscanf(azul, "%d", &peso_vitoria);
 				vitorias_azul += peso_vitoria;
 			}
 
-			while(!feof(vermelho)){
+			while (!feof(vermelho)) {
 				fscanf(vermelho, "%d", &peso_vitoria);
 				vitorias_vermelho += peso_vitoria;
 			}
@@ -458,7 +418,7 @@ int main(int argc, char **argv){
 			fclose(azul);
 			fclose(vermelho);
 
-			if(vitorias_azul != 0 || vitorias_vermelho != 0){
+			if (vitorias_azul != 0 || vitorias_vermelho != 0) {
 				vitorias_azul--;
 				vitorias_vermelho--;
 			}
@@ -466,40 +426,40 @@ int main(int argc, char **argv){
 			sprintf(winblue, "%d ", vitorias_azul);
 			sprintf(winred, "%d ", vitorias_vermelho);
 
-			al_draw_text(size_22, al_map_rgb(255, 255, 0), OBS1_SUP_X + 10,  (OBS2_INF_Y + OBS2_SUP_Y)/2 + 30, 0, "HISTÓRICO");
-			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, "vitorias do azul: ");
-			al_draw_text(size_22, al_map_rgb(1, 212, 119), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 70, 0, "vitorias do verde: ");
-			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS2_INF_X - 40, (OBS1_INF_Y + OBS1_SUP_Y)/2 + 50, 0, winblue);
-			al_draw_text(size_22, al_map_rgb(0, 212, 119), OBS2_INF_X - 40, (OBS2_INF_Y + OBS2_SUP_Y)/2 + 70, 0, winred);
+			al_draw_text(size_22, al_map_rgb(255, 255, 0), OBS1_SUP_X + 10, (OBS2_INF_Y + OBS2_SUP_Y) / 2 + 30, 0, "HISTÓRICO");
+			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y) / 2 + 50, 0, "vitorias do azul: ");
+			al_draw_text(size_22, al_map_rgb(1, 212, 119), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y) / 2 + 70, 0, "vitorias do verde: ");
+			al_draw_text(size_22, al_map_rgb(1, 1, 255), OBS2_INF_X - 40, (OBS1_INF_Y + OBS1_SUP_Y) / 2 + 50, 0, winblue);
+			al_draw_text(size_22, al_map_rgb(0, 212, 119), OBS2_INF_X - 40, (OBS2_INF_Y + OBS2_SUP_Y) / 2 + 70, 0, winred);
+		}
 
- 		}//FIM DO WHILE DOS PONTOS (SE QUISER CHEGAR NO INICIO DESSA PARTE, PULA PRA LINHA *343*)
 
 
- 			if(pontos_azul <= 5 && pontos_vermelho <= 5){
-			    
-			    sprintf(pont, "%d ", pontos_azul);
-			    sprintf(pont1, "%d ", pontos_vermelho);
-			   	
-
-			    al_draw_text(size_32, al_map_rgb(0, 0, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 - 16, 0, pont);
-			    al_draw_text(size_32, al_map_rgb(50, 168, 19), OBS2_INF_X - 30, (OBS2_INF_Y + OBS2_SUP_Y)/2 - 16, 0, pont1);
-			    
-				int dist_t1_t2 = calculaDistTanques(&tanque_1, &tanque_2);
-				int dist_t2_t1 = calculaDistTanques(&tanque_2, &tanque_1);
-				
-				pontos_azul += calculaTiro(&tanque_2, &tanque_1);
-				pontos_vermelho += calculaTiro(&tanque_1, &tanque_2);  
-
-				
-				atualizaTanque(&tanque_1, dist_t1_t2); 
-				atualizaTanque(&tanque_2, dist_t2_t1); 
-				
-				desenhaTanque(tanque_1);
-				desenhaTanque(tanque_2);
+		if(pontos_azul <= 5 && pontos_vermelho <= 5){
 			
-			//atualiza a tela (quando houver algo para mostrar)
-			al_flip_display();
-			}
+			sprintf(pont, "%d ", pontos_azul);
+			sprintf(pont1, "%d ", pontos_vermelho);
+			
+
+			al_draw_text(size_32, al_map_rgb(0, 0, 255), OBS1_SUP_X + 10, (OBS1_INF_Y + OBS1_SUP_Y)/2 - 16, 0, pont);
+			al_draw_text(size_32, al_map_rgb(50, 168, 19), OBS2_INF_X - 30, (OBS2_INF_Y + OBS2_SUP_Y)/2 - 16, 0, pont1);
+			
+			int dist_t1_t2 = calculaDistTanques(&tanque_1, &tanque_2);
+			int dist_t2_t1 = calculaDistTanques(&tanque_2, &tanque_1);
+			
+			pontos_azul += calculaTiro(&tanque_2, &tanque_1);
+			pontos_vermelho += calculaTiro(&tanque_1, &tanque_2);  
+
+			
+			atualizaTanque(&tanque_1, dist_t1_t2); 
+			atualizaTanque(&tanque_2, dist_t2_t1); 
+			
+			desenhaTanque(tanque_1);
+			desenhaTanque(tanque_2);
+		
+		//atualiza a tela (quando houver algo para mostrar)
+		al_flip_display();
+		}
 		}
 
 
